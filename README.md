@@ -7,6 +7,7 @@ minimal header-only logging for C++17
 ![C++17](https://img.shields.io/badge/C%2B%2B-17-blue?style=flat-square)
 ![header-only](https://img.shields.io/badge/header--only-yes-brightgreen?style=flat-square)
 ![license](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
+![CI](https://github.com/ligumas/cpplog/actions/workflows/ci.yml/badge.svg)
 
 </div>
 
@@ -79,3 +80,4 @@ cmake -B build && cmake --build build
 ```
 
 **License:** MIT
+
