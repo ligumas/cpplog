@@ -2,18 +2,15 @@
 
 # cpplog
 
-**Minimal header-only logging for C++17**
+minimal header-only logging for C++17
 
-![Language](https://img.shields.io/badge/C%2B%2B-17-blue?style=flat-square)
-![Header only](https://img.shields.io/badge/header--only-yes-brightgreen?style=flat-square)
-![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
-![Zero dependencies](https://img.shields.io/badge/dependencies-none-brightgreen?style=flat-square)
+![C++17](https://img.shields.io/badge/C%2B%2B-17-blue?style=flat-square)
+![header-only](https://img.shields.io/badge/header--only-yes-brightgreen?style=flat-square)
+![license](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
 
 </div>
 
----
-
-Drop one header into your project and get colored, leveled, formatted logging in under a minute.
+drop one header into your project and get colored, leveled, formatted logging.
 
 ```cpp
 #include "cpplog/log.hpp"
@@ -24,7 +21,7 @@ cpplog::error("connection failed: {}", "timeout");
 cpplog::debug("loaded {} entries", count);
 ```
 
-Output:
+output in terminal (color-coded by level):
 
 ```
 [INFO ] 14:02:11 server started on port 8080
@@ -33,15 +30,11 @@ Output:
 [DEBUG] 14:02:11 loaded 42 entries
 ```
 
-(color-coded by level in terminal)
+## install
 
----
+copy `include/cpplog/log.hpp` into your project.
 
-## Install
-
-Copy `include/cpplog/log.hpp` into your project. That's it.
-
-Or with CMake FetchContent:
+or with CMake FetchContent:
 
 ```cmake
 include(FetchContent)
@@ -53,52 +46,36 @@ FetchContent_MakeAvailable(cpplog)
 target_link_libraries(your_target cpplog)
 ```
 
----
-
-## Usage
+## usage
 
 ```cpp
 #include "cpplog/log.hpp"
 
-// log levels: debug < info < warn < error
 cpplog::debug("x = {}", x);
 cpplog::info("ready");
 cpplog::warn("high load: {}%", load);
 cpplog::error("failed: {}", msg);
 
-// filter — only show WARN and above
-cpplog::set_level(cpplog::Level::WARN);
-
-// disable color (e.g. for piped output)
-cpplog::set_color(false);
-
-// also write to file
-cpplog::set_file("app.log");
+cpplog::set_level(cpplog::Level::WARN);  // filter below WARN
+cpplog::set_color(false);                // disable ANSI (e.g. piped output)
+cpplog::set_file("app.log");             // also write to file
 ```
 
----
+## features
 
-## Features
-
-- Single header, zero dependencies
-- C++17, works on Linux, Windows, macOS
+- single header, zero dependencies
+- C++17, Linux/Windows/macOS
 - `{}` placeholder formatting
-- Log levels: DEBUG, INFO, WARN, ERROR
-- Colored terminal output (ANSI)
-- Optional file output
-- Thread-safe
+- log levels: DEBUG INFO WARN ERROR
+- colored terminal output (ANSI)
+- optional file output
+- thread-safe
 
-## Build examples / tests
+## build / test
 
 ```bash
-cmake -B build
-cmake --build build
+cmake -B build && cmake --build build
 ./build/tests
-./build/example_basic
 ```
 
----
-
-## License
-
-MIT
+**License:** MIT
