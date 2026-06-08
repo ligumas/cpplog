@@ -38,8 +38,14 @@ inline const char* level_color(Level l) {
 inline std::string timestamp() {
     auto now = std::chrono::system_clock::now();
     std::time_t t = std::chrono::system_clock::to_time_t(now);
+    struct tm tm_buf{};
+#ifdef _WIN32
+    localtime_s(&tm_buf, &t);
+#else
+    localtime_r(&t, &tm_buf);
+#endif
     char buf[20];
-    std::strftime(buf, sizeof(buf), "%H:%M:%S", std::localtime(&t));
+    std::strftime(buf, sizeof(buf), "%H:%M:%S", &tm_buf);
     return buf;
 }
 
