@@ -116,7 +116,12 @@ public:
             std::cerr << "[" << detail::level_str(level) << "]";
         }
 
-        if (show_time) std::cerr << " \033[90m" << time_str << "\033[0m";
+        if (show_time) {
+            std::cerr << " ";
+            if (color) std::cerr << "\033[90m";
+            std::cerr << time_str;
+            if (color) std::cerr << "\033[0m";
+        }
         std::cerr << " " << msg << "\n";
 
         if (file_out.is_open())
