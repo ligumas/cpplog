@@ -27,10 +27,10 @@ inline const char* level_str(Level l) {
 
 inline const char* level_color(Level l) {
     switch (l) {
-        case Level::DEBUG: return "\033[36m";   // cyan
-        case Level::INFO:  return "\033[32m";   // green
-        case Level::WARN:  return "\033[33m";   // yellow
-        case Level::ERROR: return "\033[31m";   // red
+        case Level::DEBUG: return "\033[36m";
+        case Level::INFO:  return "\033[32m";
+        case Level::WARN:  return "\033[33m";
+        case Level::ERROR: return "\033[31m";
         default:           return "\033[0m";
     }
 }
@@ -124,8 +124,10 @@ public:
         }
         std::cerr << " " << msg << "\n";
 
-        if (file_out.is_open())
+        if (file_out.is_open()) {
             file_out << "[" << detail::level_str(level) << "] " << time_str << " " << msg << "\n";
+            file_out.flush();
+        }
     }
 
 private:
