@@ -9,6 +9,14 @@
 #include <fstream>
 #include <functional>
 
+#ifdef _WIN32
+  #include <io.h>
+  #define CPPLOG_ISATTY() (_isatty(2) != 0)
+#else
+  #include <unistd.h>
+  #define CPPLOG_ISATTY() (isatty(STDERR_FILENO) != 0)
+#endif
+
 namespace cpplog {
 
 enum class Level { DEBUG = 0, INFO, WARN, ERROR, OFF };
@@ -86,7 +94,7 @@ std::string format(const std::string& fmt, Args&&... args) {
 class Logger {
 public:
     Level min_level = Level::DEBUG;
-    bool color       = true;
+    bool color;
     bool show_time   = true;
     std::ofstream file_out;
 
@@ -132,7 +140,7 @@ public:
 
 private:
     std::mutex mtx_;
-    Logger() = default;
+    Logger() : color(CPPLOG_ISATTY()) {}
 };
 
 template<typename... Args> void debug(const std::string& fmt, Args&&... args) { Logger::get().log(Level::DEBUG, fmt, std::forward<Args>(args)...); }
