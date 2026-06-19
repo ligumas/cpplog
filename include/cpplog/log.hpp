@@ -4,6 +4,7 @@
 #include <sstream>
 #include <string>
 #include <mutex>
+#include <atomic>
 #include <chrono>
 #include <ctime>
 #include <fstream>
@@ -93,9 +94,9 @@ std::string format(const std::string& fmt, Args&&... args) {
 
 class Logger {
 public:
-    Level min_level = Level::DEBUG;
-    bool color;
-    bool show_time   = true;
+    std::atomic<Level> min_level{Level::DEBUG};
+    std::atomic<bool> color;
+    std::atomic<bool> show_time{true};
     std::ofstream file_out;
 
     static Logger& get() {
@@ -110,13 +111,13 @@ public:
 
     template<typename... Args>
     void log(Level level, const std::string& fmt, Args&&... args) {
-        if (level < min_level) return;
+        if (level < min_level.load()) return;
         std::string msg = detail::format(fmt, std::forward<Args>(args)...);
-        std::string time_str = show_time ? detail::timestamp() : "";
+        std::string time_str = show_time.load() ? detail::timestamp() : "";
 
         std::lock_guard<std::mutex> lock(mtx_);
 
-        if (color) {
+        if (color.load()) {
             std::cerr << detail::level_color(level)
                       << "[" << detail::level_str(level) << "]"
                       << "\033[0m";
@@ -124,11 +125,11 @@ public:
             std::cerr << "[" << detail::level_str(level) << "]";
         }
 
-        if (show_time) {
+        if (show_time.load()) {
             std::cerr << " ";
-            if (color) std::cerr << "\033[90m";
+            if (color.load()) std::cerr << "\033[90m";
             std::cerr << time_str;
-            if (color) std::cerr << "\033[0m";
+            if (color.load()) std::cerr << "\033[0m";
         }
         std::cerr << " " << msg << "\n";
 
