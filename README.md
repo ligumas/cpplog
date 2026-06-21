@@ -62,6 +62,20 @@ cpplog::set_color(false);                // disable ANSI (e.g. piped output)
 cpplog::set_file("app.log");             // also write to file
 ```
 
+use the `CPPLOG_*` macros when you want file and line in the output:
+
+```cpp
+CPPLOG_INFO("loading {} samples", n);
+CPPLOG_WARN("slow response: {}ms", ms);
+CPPLOG_ERROR("disk full");
+```
+
+```
+[INFO ] 14:02:11 main.cpp:12 loading 500 samples
+[WARN ] 14:02:11 server.cpp:87 slow response: 340ms
+[ERROR] 14:02:11 disk.cpp:203 disk full
+```
+
 ## features
 
 - single header, zero dependencies
@@ -71,6 +85,7 @@ cpplog::set_file("app.log");             // also write to file
 - colored terminal output (ANSI)
 - optional file output
 - thread-safe
+- `CPPLOG_*` macros for file:line source location
 
 ## build / test
 
@@ -80,4 +95,3 @@ cmake -B build && cmake --build build
 ```
 
 **License:** MIT
-
