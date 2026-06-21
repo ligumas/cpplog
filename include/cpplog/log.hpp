@@ -90,6 +90,13 @@ std::string format(const std::string& fmt, Args&&... args) {
     }
 }
 
+inline const char* basename(const char* path) {
+    const char* p = path;
+    for (const char* c = path; *c; ++c)
+        if (*c == '/' || *c == '\\') p = c + 1;
+    return p;
+}
+
 } // namespace detail
 
 class Logger {
@@ -116,7 +123,39 @@ public:
         std::string time_str = show_time.load() ? detail::timestamp() : "";
 
         std::lock_guard<std::mutex> lock(mtx_);
+        write_header(level, time_str, nullptr, 0);
+        std::cerr << " " << msg << "\n";
 
+        if (file_out.is_open()) {
+            file_out << "[" << detail::level_str(level) << "] " << time_str << " " << msg << "\n";
+            file_out.flush();
+        }
+    }
+
+    template<typename... Args>
+    void log_at(Level level, const char* src_file, int src_line, const std::string& fmt, Args&&... args) {
+        if (level < min_level.load()) return;
+        std::string msg = detail::format(fmt, std::forward<Args>(args)...);
+        std::string time_str = show_time.load() ? detail::timestamp() : "";
+
+        std::lock_guard<std::mutex> lock(mtx_);
+        write_header(level, time_str, src_file, src_line);
+        std::cerr << " " << msg << "\n";
+
+        if (file_out.is_open()) {
+            file_out << "[" << detail::level_str(level) << "] "
+                     << time_str << " "
+                     << detail::basename(src_file) << ":" << src_line << " "
+                     << msg << "\n";
+            file_out.flush();
+        }
+    }
+
+private:
+    std::mutex mtx_;
+    Logger() : color(CPPLOG_ISATTY()) {}
+
+    void write_header(Level level, const std::string& time_str, const char* src_file, int src_line) {
         if (color.load()) {
             std::cerr << detail::level_color(level)
                       << "[" << detail::level_str(level) << "]"
@@ -131,17 +170,14 @@ public:
             std::cerr << time_str;
             if (color.load()) std::cerr << "\033[0m";
         }
-        std::cerr << " " << msg << "\n";
 
-        if (file_out.is_open()) {
-            file_out << "[" << detail::level_str(level) << "] " << time_str << " " << msg << "\n";
-            file_out.flush();
+        if (src_file) {
+            std::cerr << " ";
+            if (color.load()) std::cerr << "\033[90m";
+            std::cerr << detail::basename(src_file) << ":" << src_line;
+            if (color.load()) std::cerr << "\033[0m";
         }
     }
-
-private:
-    std::mutex mtx_;
-    Logger() : color(CPPLOG_ISATTY()) {}
 };
 
 template<typename... Args> void debug(const std::string& fmt, Args&&... args) { Logger::get().log(Level::DEBUG, fmt, std::forward<Args>(args)...); }
@@ -155,3 +191,8 @@ inline void set_time(bool on)              { Logger::get().show_time = on; }
 inline void set_file(const std::string& p) { Logger::get().set_file(p); }
 
 } // namespace cpplog
+
+#define CPPLOG_DEBUG(fmt, ...) ::cpplog::Logger::get().log_at(::cpplog::Level::DEBUG, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define CPPLOG_INFO(fmt, ...)  ::cpplog::Logger::get().log_at(::cpplog::Level::INFO,  __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define CPPLOG_WARN(fmt, ...)  ::cpplog::Logger::get().log_at(::cpplog::Level::WARN,  __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define CPPLOG_ERROR(fmt, ...) ::cpplog::Logger::get().log_at(::cpplog::Level::ERROR, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
