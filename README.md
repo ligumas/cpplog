@@ -59,6 +59,7 @@ cpplog::error("failed: {}", msg);
 
 cpplog::set_level(cpplog::Level::WARN);  // filter below WARN
 cpplog::set_color(false);                // disable ANSI (e.g. piped output)
+cpplog::set_time(false);                 // drop timestamp (log collector adds its own)
 cpplog::set_file("app.log");             // also write to file
 ```
 
@@ -76,6 +77,8 @@ CPPLOG_ERROR("disk full");
 [ERROR] 14:02:11 disk.cpp:203 disk full
 ```
 
+`set_time(false)` still keeps file:line when using `CPPLOG_*` macros — you get location without the clock.
+
 ## features
 
 - single header, zero dependencies
@@ -84,6 +87,7 @@ CPPLOG_ERROR("disk full");
 - log levels: DEBUG INFO WARN ERROR
 - colored terminal output (ANSI)
 - optional file output
+- optional timestamp (`set_time(false)` for structured log collectors)
 - thread-safe
 - `CPPLOG_*` macros for file:line source location
 
